@@ -1,11 +1,13 @@
 package com.example.apigatewayservice2;
 
-import org.apache.http.client.methods.HttpTrace;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.web.exchanges.HttpExchangeRepository;
 import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.gateway.config.HttpClientProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 
 @SpringBootApplication
 public class ApigatewayService2Application {
@@ -20,4 +22,18 @@ public class ApigatewayService2Application {
         return new InMemoryHttpExchangeRepository();
 
     }
+/*
+
+    @Primary
+    @Bean
+    public HttpClientProperties httpClientProperties2() {
+        return new CustomHttpClientProperties();
+    }
+
+    @ConfigurationProperties(value = "spring.cloud.gateway.httpclient", ignoreInvalidFields = true)
+    private static class CustomHttpClientProperties extends HttpClientProperties {
+
+    }
+*/
+
 }

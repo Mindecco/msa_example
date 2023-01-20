@@ -1,0 +1,34 @@
+server:
+  port: 0
+  address: 127.0.0.1
+spring:
+  application:
+    name: catalog-service
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+      path: /catalog-service/h2-console
+  datasource:
+    url: jdbc:h2:mem:testdb
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    generate-ddl: true
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+
+  instance:
+    prefer-ip-address: true
+    ip-address: ${server.address}
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+greeting:
+  message: Welcome to the simple E-commerce.

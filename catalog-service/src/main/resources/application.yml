@@ -9,7 +9,7 @@ spring:
       enabled: true
       settings:
         web-allow-others: true
-      path: /catalog-service/h2-console
+      path: /h2-console
   datasource:
     url: jdbc:h2:mem:testdb
   jpa:

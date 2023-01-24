@@ -41,6 +41,7 @@ public class OrderController {
 
     @GetMapping("/{userId}/orders")
     public ResponseEntity<List<ResponseOrder>> getOrdersByUserId(@PathVariable("userId") String userId){
+        log.info("Before retrieve orders  date");
         Iterable<OrderEntity> orderlist = orderService.getOrderByUserId(userId);
 
         List<ResponseOrder> result = new ArrayList<>();
@@ -48,7 +49,7 @@ public class OrderController {
         orderlist.forEach(v->{
             result.add(new ModelMapper().map(v,ResponseOrder.class));
         });
-
+        log.info("after retrieved orders  date");
         return ResponseEntity.status(HttpStatus.OK).body(result);
 
 
@@ -73,30 +74,28 @@ public class OrderController {
     }
     @PostMapping("/{userId}/orders")
     public ResponseEntity<ResponseOrder> createOrder(@PathVariable("userId") String userId,@RequestBody RequestOrder requestOrder){
-
+        log.info("Before retrieve orders  data");
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         OrderDto orderDto = mapper.map(requestOrder,OrderDto.class);
         orderDto.setUserId(userId);
 
-        /* jpa
+    //     jpa
         OrderDto CreateOrderDto = orderService.createOrder(orderDto);
-        */
+        ResponseOrder result = mapper.map(CreateOrderDto,ResponseOrder.class);
+
 
         /* kafka */
-        orderDto.setOrderId(UUID.randomUUID().toString());
-        orderDto.setTotalPrice(requestOrder.getQty()*requestOrder.getUnitPrice());
+//        orderDto.setOrderId(UUID.randomUUID().toString());
+ //       orderDto.setTotalPrice(requestOrder.getQty()*requestOrder.getUnitPrice());
 
         /* send this order to the kafka */
+        /*
         kafkaProducer.send("example-catalog-topic",orderDto);
         orderProducer.send("orders",orderDto);
         ResponseOrder result = mapper.map(orderDto,ResponseOrder.class);
-/*
-
-        order.forEach(v->{
-            result.add(new ModelMapper().map(v,ResponseOrder.class));
-        });
 */
+        log.info("after retrieve orders  data");
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
 
     }

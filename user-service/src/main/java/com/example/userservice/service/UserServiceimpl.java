@@ -13,6 +13,8 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.modelmapper.spi.MatchingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
@@ -42,18 +44,21 @@ public class UserServiceimpl implements UserService{
     Environment env;
     RestTemplate restTemplate;
     OrderServiceClient orderServiceClient;
+    CircuitBreakerFactory circuitBreakerFactory;
 
     @Autowired
     public UserServiceimpl(UserRepository userRepository,
                            BCryptPasswordEncoder passwordEncoder,
                            Environment env,
                            RestTemplate restTemplate,
-                           OrderServiceClient orderServiceClient) {
+                           OrderServiceClient orderServiceClient,
+                           CircuitBreakerFactory circuitBreakerFactory) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.env = env;
         this.restTemplate = restTemplate;
         this.orderServiceClient = orderServiceClient;
+        this.circuitBreakerFactory = circuitBreakerFactory;
     }
     @Override
     public UserDto createUser(UserDto userDto) {
@@ -100,9 +105,12 @@ public class UserServiceimpl implements UserService{
         }*/
 
         /* ErrorDecoder */
-        List<ResponseOrder> orderlist = orderServiceClient.getOrdersByUserId(userId);
-
-
+//        List<ResponseOrder> orderlist = orderServiceClient.getOrdersByUserId(userId);
+        log.info("Before call orders ms");
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
+        List<ResponseOrder> orderlist = circuitBreaker.run( () -> orderServiceClient.getOrdersByUserId(userId) ,
+                throwable -> new ArrayList<>());
+        log.info("After call orders ms");
         returnUserDto.setOrders(orderlist);
 
         return returnUserDto;
